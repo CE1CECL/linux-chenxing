@@ -823,6 +823,23 @@ config GPIO_IDT3243X
 	  To compile this driver as a module, choose M here: the module will
 	  be called gpio-idt3243x.
 
+config GPIO_MSC313_PM
+	bool "MStar MSC313 PM GPIO support"
+	default y if ARCH_MSTARV7
+	depends on ARCH_MSTARV7
+	select GPIOLIB_IRQCHIP
+	help
+	  Say Y here to support PM GPIO on MStar MSC313 and later SoCs.
+
+config GPIO_SSD210
+	bool "SigmaStar SSD210 GPIO support"
+	default y if ARCH_MSTARV7
+	depends on (ARCH_MSTARV7 && MACH_PIONEER3) || COMPILE_TEST
+	select GPIOLIB_IRQCHIP
+	help
+	  Say Y here to support GPIO on the SigmaStar SSD210 and related
+	  SoCs.
+
 endmenu
 
 menu "Port-mapped I/O GPIO drivers"
@@ -1291,6 +1308,16 @@ config GPIO_ELKHARTLAKE
 
 	  To compile this driver as a module, choose M here: the module will
 	  be called gpio-elkhartlake.
+
+config GPIO_IP6XXX
+	tristate "Injoinic IP6XXX PMIC GPIO"
+	depends on MFD_IP6XXX
+	select GPIO_GENERIC
+	help
+	  Say yes here to support the GPIO functionality of Injoinic's IP6XXX
+	  PMICs.
+
+	  If unsure, say N.
 
 config GPIO_JANZ_TTL
 	tristate "Janz VMOD-TTL Digital IO Module"

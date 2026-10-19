@@ -1511,6 +1511,28 @@ static const struct panel_desc chefree_ch101olhlwh_002 = {
 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
 };
 
+static const struct drm_display_mode chenchen_cc0702i50r_mode = {
+	.clock = 51200,
+	.hdisplay = 1024,
+	.hsync_start = 1024 + 160,
+	.hsync_end = 1024 + 160 + 70,
+	.htotal = 1024 + 160 + 70 + 90,
+	.vdisplay = 600,
+	.vsync_start = 600 + 23,
+	.vsync_end = 600 + 23 + 10,
+	.vtotal = 600 + 23 + 10 + 2,
+};
+
+static const struct panel_desc chenchen_cc0702i50r = {
+	.modes = &chenchen_cc0702i50r_mode,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 154,
+		.height = 85,
+	},
+};
+
 static const struct drm_display_mode chunghwa_claa070wp03xg_mode = {
 	.clock = 66770,
 	.hdisplay = 800,
@@ -3787,6 +3809,31 @@ static const struct panel_desc startek_kd070wvfpa = {
 		     DRM_BUS_FLAG_SYNC_SAMPLE_NEGEDGE,
 };
 
+static const struct drm_display_mode std_std70tft102460013f_mode = {
+	.clock = 51200000,
+	.hdisplay = 1024,
+	.hsync_start = 1024 + 140,
+	.hsync_end = 1024 + 140 + 20,
+	.htotal = 1024 + 140 + 20 + 160,
+	.vdisplay = 600,
+	.vsync_start = 600 + 10,
+	.vsync_end = 600 + 10 + 3,
+	.vtotal = 600 + 22 + 3 + 10,
+};
+
+static const struct panel_desc std_std70tft102460013f = {
+	.modes = &std_std70tft102460013f_mode,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 154,
+		.height = 86,
+	},
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE,
+	.connector_type = DRM_MODE_CONNECTOR_DPI,
+};
+
 static const struct display_timing tsd_tst043015cmhx_timing = {
 	.pixelclock = { 5000000, 9000000, 12000000 },
 	.hactive = { 480, 480, 480 },
@@ -4187,6 +4234,7 @@ static const struct panel_desc arm_rtsm = {
 };
 
 static const struct of_device_id platform_of_match[] = {
+#if 0
 	{
 		.compatible = "ampire,am-1280800n3tzqw-t00h",
 		.data = &ampire_am_1280800n3tzqw_t00h,
@@ -4274,7 +4322,14 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "chefree,ch101olhlwh-002",
 		.data = &chefree_ch101olhlwh_002,
-	}, {
+	},
+#endif
+	{
+		.compatible = "chenchen,cc0702i50r",
+		.data = &chenchen_cc0702i50r,
+	},
+#if 0
+	{
 		.compatible = "chunghwa,claa070wp03xg",
 		.data = &chunghwa_claa070wp03xg,
 	}, {
@@ -4340,10 +4395,14 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "foxlink,fl500wvr00-a0t",
 		.data = &foxlink_fl500wvr00_a0t,
-	}, {
+	},
+#endif
+	{
 		.compatible = "frida,frd350h54004",
 		.data = &frida_frd350h54004,
-	}, {
+	},
+#if 0
+	{
 		.compatible = "friendlyarm,hd702e",
 		.data = &friendlyarm_hd702e,
 	}, {
@@ -4538,7 +4597,14 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "startek,kd070wvfpa",
 		.data = &startek_kd070wvfpa,
-	}, {
+	},
+#endif
+	{
+		.compatible = "std,std7.0tft1024600-13-f",
+		.data = &std_std70tft102460013f,
+	},
+#if 0
+	{
 		.compatible = "team-source-display,tst043015cmhx",
 		.data = &tsd_tst043015cmhx,
 	}, {
@@ -4598,13 +4664,16 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "yes-optoelectronics,ytc700tlag-05-201c",
 		.data = &yes_optoelectronics_ytc700tlag_05_201c,
-	}, {
+	},
+#endif
+	{
 		/* Must be the last entry */
 		.compatible = "panel-dpi",
 		.data = &panel_dpi,
 	}, {
 		/* sentinel */
 	}
+
 };
 MODULE_DEVICE_TABLE(of, platform_of_match);
 
@@ -4856,6 +4925,35 @@ static const struct panel_desc_dsi osd101t2045_53ts = {
 	.lanes = 4,
 };
 
+static const struct drm_display_mode samsung_lms279cc01_mode = {
+	.clock = 154500,
+	.hdisplay = 640,
+	.hsync_start = 640 + 46,  // bp is 46?
+	.hsync_end = 640 + 46 + 3, // hsync is 3
+	.htotal = 640 + 46 + 3 + 50, // 740
+	.vdisplay =  480,
+	.vsync_start = 480 + 10, // bp is 10
+	.vsync_end = 480 + 10 + 3,// vsync is 3
+	.vtotal = 480 + 10 + 4 + 11, // 505
+	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+};
+
+static const struct panel_desc_dsi samsung_lms279cc01 = {
+	.desc = {
+		.modes = &samsung_lms279cc01_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 57,
+			.height = 44,
+		},
+		.connector_type = DRM_MODE_CONNECTOR_DSI,
+	},
+	.flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_CLOCK_NON_CONTINUOUS,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
 static const struct of_device_id dsi_of_match[] = {
 	{
 		.compatible = "auo,b080uan01",
@@ -4879,6 +4977,10 @@ static const struct of_device_id dsi_of_match[] = {
 		.compatible = "osddisplays,osd101t2045-53ts",
 		.data = &osd101t2045_53ts
 	}, {
+		.compatible = "samsung,lms279cc01",
+		.data = &samsung_lms279cc01
+	},
+	{
 		/* sentinel */
 	}
 };

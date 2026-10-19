@@ -37,6 +37,7 @@
 #define DW_UART_DMASA	0xa8 /* DMA Software Ack */
 
 #define OCTEON_UART_USR	0x27 /* UART Status Register */
+#define MSC313_UART_USR	0x7  /* UART Status Register on MSC313 */
 
 #define RZN1_UART_TDMACR 0x10c /* DMA Control Register Transmit Mode */
 #define RZN1_UART_RDMACR 0x110 /* DMA Control Register Receive Mode */
@@ -56,6 +57,7 @@
 #define DW_UART_QUIRK_ARMADA_38X	BIT(1)
 #define DW_UART_QUIRK_SKIP_SET_RATE	BIT(2)
 #define DW_UART_QUIRK_IS_DMA_FC		BIT(3)
+#define DW_UART_QUIRK_IS_MSTAR_MSC313	BIT(4)
 
 static inline struct dw8250_data *clk_to_dw8250_data(struct notifier_block *nb)
 {
@@ -176,11 +178,54 @@ static void dw8250_serial_out38x(struct uart_port *p, int offset, int value)
 	dw8250_serial_out(p, offset, value);
 }
 
+static void msc313_pausedma(struct uart_8250_port *up)
+{
+	if (up->dma) {
+		if (up->dma->rxchan)
+			dmaengine_pause(up->dma->rxchan);
+		if (up->dma->txchan)
+			dmaengine_pause(up->dma->txchan);
+	}
+}
+
+static void msc313_resumedma(struct uart_8250_port *up)
+{
+	if (up->dma) {
+		if (up->dma->rxchan)
+			dmaengine_resume(up->dma->rxchan);
+		if (up->dma->txchan)
+			dmaengine_resume(up->dma->txchan);
+	}
+}
+
+static void dw8250_serial_outmsc313(struct uart_port *p, int offset, int value)
+{
+	struct dw8250_data *d = to_dw8250_data(p->private_data);
+	struct uart_8250_port *up = up_to_u8250p(p);
+
+	msc313_pausedma(up);
+	dw8250_serial_out(p, offset, value);
+	msc313_resumedma(up);
+}
+
+
 static unsigned int dw8250_serial_in(struct uart_port *p, int offset)
 {
 	unsigned int value = readb(p->membase + (offset << p->regshift));
 
 	return dw8250_modify_msr(p, offset, value);
+}
+
+static unsigned int dw8250_serial_inmsc313(struct uart_port *p, int offset)
+{
+	struct uart_8250_port *up = up_to_u8250p(p);
+	int value;
+
+	msc313_pausedma(up);
+	value = dw8250_serial_in(p, offset);
+	msc313_resumedma(up);
+
+	return value;
 }
 
 #ifdef CONFIG_64BIT
@@ -481,6 +526,23 @@ static void dw8250_quirks(struct uart_port *p, struct dw8250_data *data)
 			data->data.dma.prepare_tx_dma = dw8250_prepare_tx_dma;
 			data->data.dma.prepare_rx_dma = dw8250_prepare_rx_dma;
 		}
+		if (quirks & DW_UART_QUIRK_IS_MSTAR_MSC313) {
+			/*
+			 * dw8250_setup_port() will read registers at the wrong place
+			 * even if we had them so don't let it setup the port.
+			 */
+			data->skip_autocfg = true;
+			/* According to the SSD202D uart module description */
+			p->fifosize = 32;
+
+			/*
+			 * Touching the registers while DMA is enabled
+			 * causes a bus lock up so use wrappers to make
+			 * sure DMA is paused before doing so.
+			 */
+			p->serial_in = dw8250_serial_inmsc313;
+			p->serial_out = dw8250_serial_outmsc313;
+		}
 
 	} else if (acpi_dev_present("APMC0D08", NULL, -1)) {
 		p->iotype = UPIO_MEM32;
@@ -754,12 +816,20 @@ static const struct dw8250_platform_data dw8250_starfive_jh7100_data = {
 	.quirks = DW_UART_QUIRK_SKIP_SET_RATE,
 };
 
+static const struct dw8250_platform_data dw8250_mstar_msc313_data = {
+	.usr_reg = MSC313_UART_USR,
+	.quirks = DW_UART_QUIRK_IS_MSTAR_MSC313,
+};
+
 static const struct of_device_id dw8250_of_match[] = {
+#if 0
 	{ .compatible = "snps,dw-apb-uart", .data = &dw8250_dw_apb },
 	{ .compatible = "cavium,octeon-3860-uart", .data = &dw8250_octeon_3860_data },
 	{ .compatible = "marvell,armada-38x-uart", .data = &dw8250_armada_38x_data },
 	{ .compatible = "renesas,rzn1-uart", .data = &dw8250_renesas_rzn1_data },
 	{ .compatible = "starfive,jh7100-uart", .data = &dw8250_starfive_jh7100_data },
+#endif
+	{ .compatible = "mstar,msc313-uart", .data = &dw8250_mstar_msc313_data },
 	{ /* Sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, dw8250_of_match);

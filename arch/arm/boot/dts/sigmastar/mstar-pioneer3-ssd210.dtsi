@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2021 thingy.jp.
+ * Author: Daniel Palmer <daniel@thingy.jp>
+ */
+
+#include <dt-bindings/gpio/mstar.h>
+#include <dt-bindings/pinctrl/mstar.h>
+
+#include "mstar-pioneer3.dtsi"
+
+/ {
+	memory@20000000 {
+		device_type = "memory";
+		reg = <0x20000000 0x4000000>;
+	};
+};
+
+&pinctrl_pm {
+	compatible = "sstar,ssd210-pm-pinctrl";
+};
+
+&sar {
+	compatible = "sstar,ssd210-sar";
+	status = "okay";
+};
+
+&sdio {
+	cd-gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
+};
+
+&emac {
+	/*
+	 * For the SSD210 only the RMII pins are broken so configure everything
+	 * RMII here instead of having it in every board DTS.
+	 */
+	phy-mode = "rmii";
+	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tx_ref", "rx_ref";
+	clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_EMAC_AHB 0>,
+			 <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_EMAC_AHB 0>,
+			 <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_TX>,
+			 <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_RX>,
+			 <&sc_gp_ctrl_muxes SSD20XD_SC_GP_EMAC_TX_REF>,
+			 <&sc_gp_ctrl_muxes SSD20XD_SC_GP_EMAC_RX_REF>;
+	assigned-clocks = <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_RX_MUX>,
+					  <&sc_gp_ctrl_muxes SSD20XD_SC_GP_EMAC_RX_REF_MUX>,
+					  <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_TX_MUX>,
+					  <&sc_gp_ctrl_muxes SSD20XD_SC_GP_EMAC_TX_REF_MUX>;
+	assigned-clock-parents = <&rmii_buf>,
+							 <&rmii_buf>,
+							 <&rmii_buf>,
+							 <&rmii_buf>;
+};

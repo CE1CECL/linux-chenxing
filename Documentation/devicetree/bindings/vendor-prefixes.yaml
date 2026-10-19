@@ -256,6 +256,8 @@ patternProperties:
     description: Check Point Software Technologies Ltd.
   "^chefree,.*":
     description: Chefree Technology Corp.
+  "^chenchen,.*":
+    description: Shenzhen Chenchen Technology Co., Ltd
   "^chipidea,.*":
     description: Chipidea, Inc
   "^chipone,.*":
@@ -1326,6 +1328,8 @@ patternProperties:
     description: Startek
   "^starterkit,.*":
     description: Starterkit
+  "^std,.*":
+    description: Shenzhen STD Technology Co., Ltd.
   "^ste,.*":
     description: ST-Ericsson
     deprecated: true

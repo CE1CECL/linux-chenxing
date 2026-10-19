@@ -11,6 +11,7 @@
 #include <asm/mach/map.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
+#include <linux/of_platform.h>
 #include <linux/io.h>
 
 /*
@@ -42,9 +43,15 @@ static void __iomem *l3bridge;
 
 static const char * const mstarv7_board_dt_compat[] __initconst = {
 	"mstar,infinity",
+	"mstar,infinity2",
 	"mstar,infinity2m",
 	"mstar,infinity3",
+	"mstar,infinity5",
+	"mstar,infinity6",
+	"mstar,infinity6b0",
+	"mstar,infinity6e",
 	"mstar,mercury5",
+	"sstar,pioneer3",
 	NULL,
 };
 
@@ -110,9 +117,15 @@ static const struct smp_operations __initdata mstarv7_smp_ops = {
 };
 #endif
 
+#if defined(CONFIG_SUSPEND) & defined(CONFIG_MACH_INFINITY)
+int __init msc313_pm_init(void);
+#endif
+
 static void __init mstarv7_init(void)
 {
 	struct device_node *np;
+
+	of_platform_default_populate(NULL, NULL, NULL);
 
 	np = of_find_compatible_node(NULL, NULL, "mstar,l3bridge");
 	l3bridge = of_iomap(np, 0);
@@ -120,6 +133,10 @@ static void __init mstarv7_init(void)
 		soc_mb = mstarv7_mb;
 	else
 		pr_warn("Failed to install memory barrier, DMA will be broken!\n");
+
+#if defined(CONFIG_SUSPEND) & defined(CONFIG_MACH_INFINITY)
+        msc313_pm_init();
+#endif
 }
 
 DT_MACHINE_START(MSTARV7_DT, "MStar/Sigmastar Armv7 (Device Tree)")

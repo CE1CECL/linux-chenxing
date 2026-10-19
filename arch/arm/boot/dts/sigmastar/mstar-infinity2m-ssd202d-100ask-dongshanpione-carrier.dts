@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2021 thingy.jp.
+ * Author: Daniel Palmer <daniel@thingy.jp>
+ */
+
+/dts-v1/;
+#include "mstar-infinity2m-ssd202d-100ask-dongshanpione.dts"
+
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "DongShanPi One + Carrier";
+
+	vcc_ext_5v: reg_ext_5v {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_ext_5v";
+		regulator-type = "voltage";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpios = <&gpio SSD20XD_GPIO_GPIO85 0>;
+		enable-active-high;
+	};
+
+	vcc_ext_3v3: reg_ext_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_ext_3v3";
+		regulator-type = "voltage";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		vin-supply = <&vcc_ext_5v>;
+	};
+};
+
+
+&emac {
+	pinctrl-names = "default";
+	pinctrl-0 = <&emac_mode1_pins>, <&pm_led_mode1_pins>;
+	status = "okay";
+};
+
+&bach {
+	status = "okay";
+};
+
+&fuart {
+	pinctrl-names = "default";
+	pinctrl-0 = <&fuart_mode1_pins>;
+	status = "okay";
+};

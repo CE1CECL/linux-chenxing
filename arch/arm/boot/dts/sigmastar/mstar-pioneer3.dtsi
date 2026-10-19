@@ -1,0 +1,432 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright (c) 2022 thingy.jp.
+ * Author: Daniel Palmer <daniel@thingy.jp>
+ */
+
+#include "mstar-v7.dtsi"
+
+#include <dt-bindings/gpio/gpio.h>
+
+#include <dt-bindings/clock/mstar-msc313-clkgen.h>
+#include <dt-bindings/clock/mstar-msc313-sc-gp.h>
+
+/ {
+	clk_timer: timer_clk {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <432000000>;
+	};
+};
+
+/ {
+	cpu0_opp_table: opp_table0 {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp-240000000 {
+			opp-hz = /bits/ 64 <240000000>;
+			opp-microvolt = <900000 900000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-400000000 {
+			opp-hz = /bits/ 64 <400000000>;
+			opp-microvolt = <900000 900000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-600000000 {
+			opp-hz = /bits/ 64 <600000000>;
+			opp-microvolt = <900000 900000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-800000000 {
+			opp-hz = /bits/ 64 <800000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-1008000000 {
+			opp-hz = /bits/ 64 <1008000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-108000000 {
+			opp-hz = /bits/ 64 <1080000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-1188000000 {
+			opp-hz = /bits/ 64 <1188000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		opp-1296000000 {
+			opp-hz = /bits/ 64 <1296000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+		};
+
+		/* Overclock. Stable upto 1.8GHz */
+		opp-1350000000 {
+			opp-hz = /bits/ 64 <1350000000>;
+			opp-microvolt = <1100000 1100000 1150000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+		opp-1404000000 {
+			opp-hz = /bits/ 64 <1404000000>;
+			opp-microvolt = <1100000 1100000 1500000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+		opp-1458000000 {
+			opp-hz = /bits/ 64 <1458000000>;
+			opp-microvolt = <1100000 1100000 1500000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+#if 0
+		opp-1512000000 {
+			opp-hz = /bits/ 64 <1512000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+		opp-1600000000 {
+			opp-hz = /bits/ 64 <1600000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+		opp-1700000000 {
+			opp-hz = /bits/ 64 <1700000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+
+		opp-1800000000 {
+			opp-hz = /bits/ 64 <1800000000>;
+			opp-microvolt = <1000000 1000000 1100000>;
+			clock-latency-ns = <300000>;
+			turbo-mode;
+		};
+#endif
+	};
+
+	ge_opp_table: ge_opp_table {
+		compatible = "operating-points-v2";
+		opp-144000000 {
+			opp-hz = /bits/ 64 <144000000>;
+			clock-latency-ns = <300000>;
+		};
+		opp-172000000 {
+			opp-hz = /bits/ 64 <172000000>;
+			clock-latency-ns = <300000>;
+		};
+		opp-216000000 {
+			opp-hz = /bits/ 64 <216000000>;
+			clock-latency-ns = <300000>;
+		};
+		opp-320000000 {
+			opp-hz = /bits/ 64 <320000000>;
+			clock-latency-ns = <300000>;
+		};
+		opp-384000000 {
+			opp-hz = /bits/ 64 <384000000>;
+			clock-latency-ns = <300000>;
+		};
+		opp-432000000 {
+			opp-hz = /bits/ 64 <432000000>;
+			clock-latency-ns = <300000>;
+		};
+	};
+};
+
+&bdma {
+	compatible = "sstar,ssd210-bdma";
+	reg = <0x200400 0x200>;
+	interrupts-extended = <&intc_irq GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+};
+
+&cpu0 {
+	operating-points-v2 = <&cpu0_opp_table>;
+};
+
+&cpus {
+	cpu1: cpu@1 {
+		device_type = "cpu";
+		compatible = "arm,cortex-a7";
+		reg = <0x1>;
+		clocks = <&cpupll>;
+		clock-names = "cpuclk";
+		operating-points-v2 = <&cpu0_opp_table>;
+	};
+};
+
+&pmu {
+	interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+		     <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+	interrupt-affinity = <&cpu0>, <&cpu1>;
+};
+
+&riu {
+	/delete-node/ gpio@207800;
+	/*
+	 * There are apparently registers in this area
+	 * still but pinctrl is handled somewhere else now
+	 */
+	/delete-node/ pinctrl@203c00;
+
+	por: por@c00 {
+		/* this seems to just be a lump of NVRAM */
+		reg = <0xc00 0x20>;
+	};
+
+	pwm: pwm@3400 {
+		compatible = "mstar,msc313e-pwm";
+		reg = <0x3400 0x400>;
+		#pwm-cells = <2>;
+		clocks = <&xtal_div2>;
+	};
+
+	bdmaselwtf: bdmaselwtf@200e50 {
+		compatible = "mstar,bdmaselwtf", "syscon";
+		reg = <0x200e50 0x4>;
+	};
+
+	bdma1: bdma@201800 {
+		compatible = "sstar,ssd210-bdma";
+		dma-channels = <4>;
+		#dma-cells = <3>;
+		reg = <0x201800 0x200>;
+		interrupt-parent = <&intc_irq>;
+		interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		/* wrong clock */
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_BDMA 0>;
+		status = "okay";
+	};
+
+	bdma2: bdma@201a00 {
+		compatible = "sstar,ssd210-bdma";
+		dma-channels = <4>;
+		#dma-cells = <3>;
+		reg = <0x201a00 0x200>;
+		interrupt-parent = <&intc_irq>;
+		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+		/* Wrong clock */
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_BDMA 0>;
+		status = "okay";
+	};
+
+	keypad: keypad@201c00 {
+		reg = <0x201c00 0x200>;
+		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	smpctrl: smpctrl@204000 {
+		compatible = "sstar,ssd201-smpctrl", "mstar,smpctrl";
+		reg = <0x204000 0x200>;
+	};
+
+	gpi: interrupt-controller@207a00 {
+		compatible = "sstar,ssd20xd-gpi";
+		reg = <0x207a00 0x200>;
+		#interrupt-cells = <2>;
+		interrupt-controller;
+		interrupts-extended = <&intc_irq GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	pinctrl2: pinctrl@207800 {
+		compatible = "sstar,ssd210-pinctrl";
+		reg = <0x207800 0x200>;
+		ssd210_i2c0_mode1_pins: ssd210_i2c0_mode1_pins {
+			function = "i2c0";
+			groups = "i2c0_mode1";
+		};
+		ssd210_i2c0_mode4_pins: ssd210_i2c0_mode4_pins {
+			function = "i2c0";
+			groups = "i2c0_mode4";
+		};
+		ssd210_i2c0_mode8_pins: ssd210_i2c0_mode8_pins {
+			function = "i2c0";
+			groups = "i2c0_mode8";
+		};
+		ssd210_i2c1_mode1_pins: ssd210_i2c1_mode1_pins {
+			function = "i2c1";
+			groups = "i2c1_mode1";
+		};
+		ssd210_pwm0_mode1_pins: ssd210_pwm0_mode1_pins {
+			function = "pwm0";
+			groups = "pwm0_mode1";
+		};
+		ssd210_sdio_mode2_pins: ssd210_sdio_mode2_pins {
+			function = "sdio";
+			groups = "sdio_mode2";
+		};
+		ssd210_spi0_mode3_pins: ssd210_spi0_mode3_pins {
+			function = "spi0";
+			groups = "spi0_mode3";
+		};
+		ssd210_uart1_mode5_pins: ssd210_uart1_mode5_pins {
+			function = "uart1";
+			groups = "uart1_mode5";
+		};
+		eth_mode8_pins: eth_mode8_pins {
+			function = "eth";
+			groups = "eth_mode8";
+		};
+	};
+
+	gpio: gpio@207c00 {
+		compatible = "sstar,ssd210-gpio";
+		reg = <0x207c00 0x200>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		#interrupt-cells = <2>;
+		interrupt-controller;
+		interrupt-parent = <&gpi>;
+	};
+
+	// todo maybe same as i2m?
+	uart2: serial@221400 {
+	};
+
+	pspi0: spi@222400 {
+		compatible = "sstar,ssd210-pspi";
+		reg = <0x222400 0x200>;
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_PSPI0 0>;
+		interrupts-extended = <&intc_irq GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+
+	pspi1: spi@222600 {
+		compatible = "sstar,ssd210-pspi";
+		reg = <0x222600 0x200>;
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_PSPI1 0>;
+		interrupts-extended = <&intc_irq GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+		//status = "disabled";
+	};
+
+	ge: ge@281200 {
+			compatible = "sstar,ssd20xd-ge";
+			reg = <0x281200 0x200>;
+			clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_GE 0>;
+			clock-names = "ge";
+			/* 
+			 * Set the clock to the highest frequency, it's doesn't seem to make
+			 * much difference over using the MIU source.
+			 */
+			assigned-clocks = <&clkgen MSC313_CLKGEN_MUXES MSC313_CLKGEN_GE 0>;
+			assigned-clock-parents = <&clkgen MSC313_CLKGEN_GATES MSC313_CLKGEN_GATE_6 0>;
+			//assigned-clock-parents = <&clkgen MSC313_CLKGEN_MUXES MSC313_CLKGEN_MIU 0>;
+			interrupts-extended = <&intc_irq GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+			interconnects = <&miu 0>;
+			interconnect-names = "dma-mem";
+			operating-points-v2 = <&ge_opp_table>;
+	};
+
+	sdio: sdio@282000 {
+		compatible = "mstar,msc313-sdio";
+		interrupts-extended = <&intc_irq GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_SDIO 0>;
+		reg = <0x282000 0x200>;
+		no-1-8-v;
+		cap-sd-highspeed;
+		bus-width = <4>;
+		//pinctrl-names = "default";
+		//pinctrl-0 = <&sdio_pins>;
+		//broken-cd;
+		cd-gpios = <&gpio_pm 1 GPIO_ACTIVE_LOW>;
+		interconnects = <&miu 0>;
+		interconnect-names = "dma-mem";
+		status = "disabled";
+	};
+
+	emac: emac@2a2000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "mstar,msc313-emac";
+		interrupts-extended = <&intc_irq GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x2a2000 0x800>;
+		phy-mode = "mii";
+		clock-names = "pclk", "hclk", "tx_clk", "rx_clk";
+		clocks = <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_EMAC_AHB 0>,
+				 <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_EMAC_AHB 0>,
+				 <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_TX>,
+				 <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_RX>;
+		assigned-clocks = <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_RX_MUX>,
+						  <&sc_gp_ctrl_muxes MSC313_SC_GP_EMAC_TX_MUX>;
+		assigned-clock-parents = <&eth_buf>, <&eth_buf>;
+		local-mac-address = [00 00 00 00 00 00];
+		status = "disabled";
+		interconnects = <&miu 0>;
+		interconnect-names = "dma-mem";
+	};
+};
+
+&bach {
+	compatible = "mstar,ssd210-bach";
+};
+
+&clkgen {
+	compatible = "sstar,ssd210-clkgen";
+};
+
+&sc_gp_ctrl_muxes {
+	compatible = "sstar,ssd210-sc-gp-ctrl-muxes";
+	clock-names = "eth_buf", "rmii_buf","xtal_div2", "sdio_clkgen", "sc_pixel";
+	clocks = <&eth_buf>,
+		 <&rmii_buf>,
+		 <&xtal_div2>,
+		 <&clkgen MSC313_CLKGEN_DEGLITCHES MSC313_CLKGEN_SDIO 0>,
+		 <&clkgen MSC313_CLKGEN_DEGLITCHES SSD20XD_CLKGEN_SC_PIXEL 0>;
+};
+
+&sdio {
+	clocks = <&sc_gp_ctrl_muxes SSD210_SC_GP_SDIO_GATE>;
+};
+
+&timer0 {
+	compatible = "sstar,ssd20xd-timer";
+	clocks = <&clk_timer>;
+};
+
+&timer1 {
+	compatible = "sstar,ssd20xd-timer";
+	clocks = <&clk_timer>;
+};
+
+&timer2 {
+	compatible = "sstar,ssd20xd-timer";
+	clocks = <&clk_timer>;
+};
+
+&mspi0 {
+	compatible = "sstar,ssd210-spi", "mstar,msc313-spi";
+	dma-names = "bdma";
+	dmas = <&bdma 1 MSC313_BDMA_P3_SLAVE_MSPI0 16>;
+	interconnects = <&miu 0>;
+	interconnect-names = "dma-mem";
+	mstar,bdmaselwtf = <&bdmaselwtf>;
+};
+
+&mspi1 {
+	compatible = "sstar,ssd210-spi", "mstar,msc313-spi";
+	dma-names = "bdma";
+	dmas = <&bdma 2 MSC313_BDMA_P3_SLAVE_MSPI1 16>;
+	interconnects = <&miu 0>;
+	interconnect-names = "dma-mem";
+	mstar,bdmaselwtf = <&bdmaselwtf>;
+};

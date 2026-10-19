@@ -2428,16 +2428,33 @@ W:	http://linux-chenxing.org/
 T:	git git://github.com/linux-chenxing/linux.git
 F:	Documentation/devicetree/bindings/arm/mstar/*
 F:	Documentation/devicetree/bindings/clock/mstar,msc313-mpll.yaml
+F:	Documentation/devicetree/bindings/gpio/mstar,msc313-gpio-pm.yaml
 F:	Documentation/devicetree/bindings/gpio/mstar,msc313-gpio.yaml
 F:	arch/arm/boot/dts/sigmastar/
+F:	Documentation/devicetree/bindings/interrupt-controller/mstar,msc313-pm-intc.yaml
+F:	Documentation/devicetree/bindings/interrupt-controller/mstar,msc313-pm-wakeup-intc.yaml
+F:	Documentation/devicetree/bindings/interrupt-controller/sstar,ssd20xd-gpi.yaml
+F:	Documentation/devicetree/bindings/pinctrl/mstar,*
+F:	Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
+F:	Documentation/devicetree/bindings/watchdog/mstar,msc313e-wdt.yaml
 F:	arch/arm/mach-mstar/
 F:	drivers/clk/mstar/
+F:	drivers/char/hw_random/msc313-rng.c
 F:	drivers/clocksource/timer-msc313e.c
+F:	drivers/gpio/gpio-msc313-pm.c
 F:	drivers/gpio/gpio-msc313.c
+F:	drivers/irqchip/irq-msc313-pm-intc.c
+F:	drivers/irqchip/irq-msc313-pm-wakeup.c
+F:	drivers/irqchip/irq-ssd20xd-gpi.c
+F:	drivers/pinctrl/mstar/
+F:	drivers/pwm/pwm-msc313.c
+F:	drivers/pwm/pwm-msc313e.c
 F:	drivers/rtc/rtc-msc313.c
 F:	drivers/watchdog/msc313e_wdt.c
 F:	include/dt-bindings/clock/mstar-*
+F:	include/dt-bindings/gpio/msc313-gpio-pm.h
 F:	include/dt-bindings/gpio/msc313-gpio.h
+F:	include/soc/mstar/
 
 ARM/NOMADIK/Ux500 ARCHITECTURES
 M:	Linus Walleij <linus.walleij@linaro.org>
@@ -23363,6 +23380,15 @@ F:	drivers/watchdog/
 F:	include/linux/watchdog.h
 F:	include/trace/events/watchdog.h
 F:	include/uapi/linux/watchdog.h
+
+WAVE5 VPU CODEC DRIVER
+M:	Nas Chung <nas.chung@chipsnmedia.com>
+M:	Robert Beckett <bob.beckett@collabora.com>
+M:	Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+L:	linux-media@vger.kernel.org
+S:	Maintained
+F:	Documentation/devicetree/bindings/staging/media/cnm,wave.yaml
+F:	drivers/staging/media/wave5/
 
 WHISKEYCOVE PMIC GPIO DRIVER
 M:	Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>

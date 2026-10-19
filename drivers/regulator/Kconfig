@@ -372,6 +372,13 @@ config REGULATOR_DB8500_PRCMU
 	  This driver supports the voltage domain regulators controlled by the
 	  DB8500 PRCMU
 
+config REGULATOR_EA3056
+	tristate "Everanalog EA3056 regulator"
+	depends on I2C && (OF || COMPILE_TEST)
+	select REGMAP_I2C
+	help
+	  This driver supports the Everanalog EA3056 4ch regulator.
+
 config REGULATOR_FAN53555
 	tristate "Fairchild FAN53555 Regulator"
 	depends on I2C
@@ -439,6 +446,13 @@ config REGULATOR_HI6421V600
 	  This driver provides support for the voltage regulators on
 	  HiSilicon Hi6421v600 PMU / Codec IC.
 	  This is used on Kirin 3670 boards, like HiKey 970.
+
+config REGULATOR_IP6XXX
+	tristate "Injoinic IP6XXX regulator"
+	depends on MFD_IP6XXX
+	default MFD_IP6XXX
+	help
+	  This driver supports the regulators in IP6XXX PMICs.
 
 config REGULATOR_ISL9305
 	tristate "Intersil ISL9305 regulator"
@@ -913,6 +927,12 @@ config REGULATOR_MT6397
 	  MediaTek MT6397 PMIC.
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
+
+config REGULATOR_MSC313_PM
+	tristate "Regulators and switches in the MSC313 pm domain"
+	depends on MFD_SYSCON
+	help
+	  This driver exposes the supplies managed by the pm domain.
 
 config REGULATOR_MTK_DVFSRC
 	tristate "MediaTek DVFSRC regulator driver"

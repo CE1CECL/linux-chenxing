@@ -222,6 +222,8 @@ struct ehci_hcd {			/* one per controller */
 	unsigned		spurious_oc:1;
 	unsigned		is_aspeed:1;
 	unsigned		zx_wakeup_clear_needed:1;
+	unsigned		fusbh200:1;	/* Faraday fusb200 */
+	unsigned		fotg210:1;	/* Faraday fotg210 */
 
 	/* required for usb32 quirk */
 	#define OHCI_CTRL_HCFS          (3 << 6)
@@ -257,6 +259,18 @@ struct ehci_hcd {			/* one per controller */
 	u8			tt_budget[EHCI_BANDWIDTH_SIZE];
 						/* us budgeted per uframe */
 	struct list_head	tt_list;
+
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	/* Overrides to fix up broken implementations */
+	/* Broken IO */
+	void (*ehci_writel)(const struct ehci_hcd *ehci, const unsigned int val, __u32 __iomem *regs);
+	unsigned int (*ehci_readl)(const struct ehci_hcd *ehci, __u32 __iomem *regs);
+	/* Fix up port status register being in the wrong place */
+	u32 __iomem *(*get_port_status_reg)(struct ehci_hcd *ehci, unsigned portnum);
+	bool (*get_port_occ)(struct ehci_hcd *ehci);
+	void (*enable_port_occ)(struct ehci_hcd *ehci, u32 portsc);
+	unsigned int (*port_speed)(struct ehci_hcd *ehci, unsigned int portsc);
+#endif
 
 	/* platform-specific data -- must come last */
 	unsigned long		priv[] __aligned(sizeof(s64));
@@ -658,6 +672,10 @@ struct ehci_tt {
 static inline unsigned int
 ehci_port_speed(struct ehci_hcd *ehci, unsigned int portsc)
 {
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	if (ehci->port_speed)
+		return ehci->port_speed(ehci, portsc);
+#endif
 	if (ehci_is_TDI(ehci)) {
 		switch ((portsc >> (ehci->has_hostpc ? 25 : 26)) & 3) {
 		case 0:
@@ -756,7 +774,12 @@ static inline unsigned int ehci_readl(const struct ehci_hcd *ehci,
 		readl_be(regs) :
 		readl(regs);
 #else
-	return readl(regs);
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	if (ehci->ehci_readl)
+		return ehci->ehci_readl(ehci, regs);
+	else
+#endif
+		return readl(regs);
 #endif
 }
 
@@ -772,6 +795,7 @@ static inline void imx28_ehci_writel(const unsigned int val,
 {
 }
 #endif
+
 static inline void ehci_writel(const struct ehci_hcd *ehci,
 		const unsigned int val, __u32 __iomem *regs)
 {
@@ -782,6 +806,10 @@ static inline void ehci_writel(const struct ehci_hcd *ehci,
 #else
 	if (ehci->imx28_write_fix)
 		imx28_ehci_writel(val, regs);
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	else if (ehci->ehci_writel)
+		ehci->ehci_writel(ehci, val, regs);
+#endif
 	else
 		writel(val, regs);
 #endif
@@ -904,4 +932,30 @@ extern void	ehci_adjust_port_wakeup_flags(struct ehci_hcd *ehci,
 extern int	ehci_hub_control(struct usb_hcd	*hcd, u16 typeReq, u16 wValue,
 				 u16 wIndex, char *buf, u16 wLength);
 
+static inline u32 __iomem *ehci_get_port_status_reg(struct ehci_hcd *ehci, unsigned portnum)
+{
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	if (ehci->get_port_status_reg)
+		return ehci->get_port_status_reg(ehci, portnum);
+#endif
+	return &ehci->regs->port_status[portnum];
+}
+
+static inline void ehci_enable_port_occ(struct ehci_hcd *ehci, u32 temp, u32 __iomem * status_reg)
+{
+#ifdef CONFIG_HAVE_BROKEN_EHCI_HCD
+	if (ehci->enable_port_occ)
+		ehci->enable_port_occ(ehci, temp);
+#endif
+	ehci_writel(ehci, temp | PORT_OCC, status_reg);
+
+}
+
+static inline unsigned int ehci_itd_len(struct ehci_hcd *ehci, struct usb_iso_packet_descriptor *desc, u32 t)
+{
+	if(ehci->fotg210 || ehci->fusbh200)
+		return desc->length - EHCI_ITD_LENGTH (t);
+	else
+		return EHCI_ITD_LENGTH(t);
+}
 #endif /* __LINUX_EHCI_HCD_H */

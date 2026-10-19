@@ -13,6 +13,14 @@
 	model = "Wireless Tag IDO-SBC2D06-1VB-22W";
 	compatible = "wirelesstag,ido-sbc2d06-v1b-22w", "mstar,infinity2m";
 
+	aliases {
+		console = &pm_uart;
+		rtc0 = &rtcpwc;
+		rtc1 = &rtc;
+		ethernet0 = &emac;
+		ethernet1 = &emac1;
+	};
+
 	leds {
 		compatible = "gpio-leds";
 		sys_led {
@@ -20,4 +28,81 @@
 			linux,default-trigger = "heartbeat";
 		};
 	};
+
+	vcc_vbus: regulator@2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_vbus";
+		regulator-type = "voltage";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpios = <&gpio SSD20XD_GPIO_GPIO14 0>;
+		enable-active-high;
+	};
+
+	vcc_sd: regulator@3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_sd";
+		regulator-type = "voltage";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		gpios = <&gpio SSD20XD_GPIO_GPIO90 0>;
+	};
+};
+
+&bach {
+	status = "okay";
+};
+
+&emac {
+	pinctrl-names = "default";
+	pinctrl-0 = <&emac_mode1_pins>, <&pm_led_mode1_pins>;
+	status = "okay";
+};
+
+&emac1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&eth1_mode4_pins>;
+	phy-mode = "rmii";
+	phy-handle = <&phy1>;
+	status = "okay";
+	phy1: ethernet-phy@1 {
+		compatible = "ethernet-phy-id0243.0c54";
+		reg = <1>;
+		reset-gpios = <&gpio SSD20XD_GPIO_TTL16 GPIO_ACTIVE_LOW>;
+		reset-assert-us = <500000>;
+		reset-deassert-us = <500000>;
+	};
+};
+
+&sdio {
+	vmmc-supply = <&vcc_sd>;
+	pinctrl-0 = <&sdio_mode1_8ma_pins>;
+	status = "okay";
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_mode4_pins>;
+	status = "okay";
+};
+
+&usbphy2 {
+	vbus-supply = <&vcc_vbus>;
+	status = "okay";
+};
+
+&uhc2 {
+	status = "okay";
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c1_mode1_pins>;
+	status = "okay";
+};
+
+&ubi {
+	reg = <0x2c0000 0xfd40000>;
 };

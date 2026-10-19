@@ -54,6 +54,7 @@ typedef struct {
 /* Big exception to the "don't include kernel headers into userspace, which
  * even potentially has different endianness and word sizes, since
  * we handle those differences explicitly below */
+#include "../../include/generated/autoconf.h"
 #include "../../include/linux/mod_devicetable.h"
 
 /* This array collects all instances that use the generic do_table */
@@ -359,8 +360,13 @@ static void do_of_entry_multi(void *symval, struct module *mod)
 	int len;
 	char *tmp;
 
+#ifdef CONFIG_OF_NAME_TYPE
 	DEF_FIELD_ADDR(symval, of_device_id, name);
 	DEF_FIELD_ADDR(symval, of_device_id, type);
+#else
+	const char *emptystr = "\0";
+	const char **name = &emptystr, **type = &emptystr;
+#endif
 	DEF_FIELD_ADDR(symval, of_device_id, compatible);
 
 	len = sprintf(alias, "of:N%sT%s", (*name)[0] ? *name : "*",

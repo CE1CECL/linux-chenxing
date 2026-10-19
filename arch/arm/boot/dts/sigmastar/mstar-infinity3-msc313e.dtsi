@@ -4,6 +4,9 @@
  * Author: Daniel Palmer <daniel@thingy.jp>
  */
 
+#include <dt-bindings/gpio/msc313-gpio-pm.h>
+#include <dt-bindings/pinctrl/mstar.h>
+
 #include "mstar-infinity3.dtsi"
 
 / {
@@ -11,4 +14,45 @@
 		device_type = "memory";
 		reg = <0x20000000 0x4000000>;
 	};
+};
+
+&soc {
+	/*
+	cmdq: cmdq@1 {
+		reg = <0 0x200>;
+		compatible = "mstar,msc313-cmdq";
+		interrupt-parent = <&intc_spi>;
+		interrupts = <52 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clkgen_mux_mui 0>;
+	};*/
+
+	/*
+	cmdq: cmdq@2 {
+		reg = <0 0x200>;
+		compatible = "mstar,msc313-cmdq";
+		interrupt-parent = <&intc_spi>;
+		interrupts = <53 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clkgen_mux_mui 0>;
+	};*/
+};
+
+&gpio_pm {
+	compatible = "mstar,msc313-gpio-pm";
+	gpio-ranges = <&pinctrl_pm MSC313_PM_GPIO4 PIN_MSC313_PM_GPIO4 1>,
+		      <&pinctrl_pm MSC313_PM_SD_CDZ PIN_MSC313_PM_SD_CDZ 1>;
+	/*interrupts-extended = <&gpio_pm MSC313_PM_GPIO4 6 IRQ_TYPE_LEVEL_HIGH>,
+			      <&intc_fiq GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;*/
+	status = "okay";
+};
+
+&pinctrl {
+	compatible = "mstar,msc313e-pinctrl";
+};
+
+&pinctrl_pm {
+	compatible = "mstar,msc313e-pm-pinctrl";
+};
+
+&sdio {
+	cd-gpios = <&gpio_pm MSC313_PM_SD_CDZ GPIO_ACTIVE_LOW>;
 };

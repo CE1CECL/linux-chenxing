@@ -168,10 +168,11 @@ EXPORT_SYMBOL_GPL(ehci_handshake);
 /* check TDI/ARC silicon is in host mode */
 static int tdi_in_host_mode (struct ehci_hcd *ehci)
 {
-	u32		tmp;
-
-	tmp = ehci_readl(ehci, &ehci->regs->usbmode);
-	return (tmp & 3) == USBMODE_CM_HC;
+	return 1;
+	//u32		tmp;
+//
+	//tmp = ehci_readl(ehci, &ehci->regs->usbmode);
+	//return (tmp & 3) == USBMODE_CM_HC;
 }
 
 /*
@@ -211,6 +212,7 @@ static int ehci_halt (struct ehci_hcd *ehci)
 /* put TDI/ARC silicon into EHCI mode */
 static void tdi_reset (struct ehci_hcd *ehci)
 {
+#if 0
 	u32		tmp;
 
 	tmp = ehci_readl(ehci, &ehci->regs->usbmode);
@@ -222,6 +224,7 @@ static void tdi_reset (struct ehci_hcd *ehci)
 	if (ehci_big_endian_mmio(ehci))
 		tmp |= USBMODE_BE;
 	ehci_writel(ehci, tmp, &ehci->regs->usbmode);
+#endif
 }
 
 /*
@@ -325,7 +328,7 @@ static void ehci_turn_off_all_ports(struct ehci_hcd *ehci)
 		ehci_port_power(ehci, port, false);
 		spin_lock_irq(&ehci->lock);
 		ehci_writel(ehci, PORT_RWC_BITS,
-				&ehci->regs->port_status[port]);
+				ehci_get_port_status_reg(ehci, port));
 	}
 }
 
@@ -509,6 +512,11 @@ static int ehci_init(struct usb_hcd *hcd)
 		ehci->i_thresh = 0;
 	else					// N microframes cached
 		ehci->i_thresh = 2 + HCC_ISOC_THRES(hcc_params);
+
+	// mstar
+	ehci->i_thresh = 8;
+	ehci->periodic_count = 0;
+	//
 
 	/*
 	 * dedicate a qh for the async ring head, since we couldn't unlink
@@ -813,8 +821,7 @@ restart:
 			if (!(ppcd & (1 << i)))
 				continue;
 			pstatus = ehci_readl(ehci,
-					 &ehci->regs->port_status[i]);
-
+					ehci_get_port_status_reg(ehci, i));
 			if (pstatus & PORT_OWNER)
 				continue;
 			if (!(test_bit(i, &ehci->suspended_ports) &&
@@ -909,7 +916,8 @@ static int ehci_urb_enqueue (
 		return intr_submit(ehci, urb, &qtd_list, mem_flags);
 
 	case PIPE_ISOCHRONOUS:
-		if (urb->dev->speed == USB_SPEED_HIGH)
+		if (urb->dev->speed == USB_SPEED_HIGH ||
+			(ehci->fusbh200 || ehci->fotg210))
 			return itd_submit (ehci, urb, mem_flags);
 		else
 			return sitd_submit (ehci, urb, mem_flags);
