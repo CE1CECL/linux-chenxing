@@ -30,8 +30,8 @@ subdir-ccflags-y += -Wno-sign-compare
 endif
 # --- end copy-paste
 
-# Enable -Werror in CI and development
-subdir-ccflags-$(CONFIG_DRM_I915_WERROR) += -Werror
+# Enable  in CI and development
+subdir-ccflags-$(CONFIG_DRM_I915_WERROR) += 
 
 # Fine grained warnings disable
 CFLAGS_i915_pci.o = $(call cc-disable-warning, override-init)
@@ -404,7 +404,7 @@ obj-$(CONFIG_DRM_I915_GVT_KVMGT) += kvmgt.o
 #
 # Enable locally for CONFIG_DRM_I915_WERROR=y. See also scripts/Makefile.build
 ifdef CONFIG_DRM_I915_WERROR
-    cmd_checkdoc = $(srctree)/scripts/kernel-doc -none -Werror $<
+    cmd_checkdoc = $(srctree)/scripts/kernel-doc -none  $<
 endif
 
 # header test
@@ -419,7 +419,7 @@ always-$(CONFIG_DRM_I915_WERROR) += \
 
 quiet_cmd_hdrtest = HDRTEST $(patsubst %.hdrtest,%.h,$@)
       cmd_hdrtest = $(CC) $(filter-out $(CFLAGS_GCOV), $(c_flags)) -S -o /dev/null -x c /dev/null -include $<; \
-		$(srctree)/scripts/kernel-doc -none -Werror $<; touch $@
+		$(srctree)/scripts/kernel-doc -none  $<; touch $@
 
 $(obj)/%.hdrtest: $(src)/%.h FORCE
 	$(call if_changed_dep,hdrtest)

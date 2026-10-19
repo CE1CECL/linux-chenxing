@@ -64,7 +64,7 @@ config KVM
 	  If unsure, say N.
 
 config KVM_WERROR
-	bool "Compile KVM with -Werror"
+	bool "Compile KVM with "
 	# KASAN may cause the build to fail due to larger frames
 	default y if X86_64 && !KASAN
 	# We use the dependency on !COMPILE_TEST to not be enabled
@@ -73,7 +73,7 @@ config KVM_WERROR
 	depends on (X86_64 && !KASAN) || !COMPILE_TEST
 	depends on EXPERT
 	help
-	  Add -Werror to the build flags for KVM.
+	  Add  to the build flags for KVM.
 
 	  If in doubt, say "N".
 

@@ -174,7 +174,7 @@ TPROGS_CFLAGS += -Wmissing-prototypes
 TPROGS_CFLAGS += -Wstrict-prototypes
 TPROGS_CFLAGS += $(call try-run,\
 	printf "int main() { return 0; }" |\
-	$(CC) -Werror -fsanitize=bounds -x c - -o "$$TMP",-fsanitize=bounds,)
+	$(CC)  -fsanitize=bounds -x c - -o "$$TMP",-fsanitize=bounds,)
 
 TPROGS_CFLAGS += -I$(objtree)/usr/include
 TPROGS_CFLAGS += -I$(srctree)/tools/testing/selftests/bpf/

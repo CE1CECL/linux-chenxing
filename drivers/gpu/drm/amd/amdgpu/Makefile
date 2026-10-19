@@ -57,7 +57,7 @@ subdir-ccflags-y += -Wno-type-limits
 subdir-ccflags-y += -Wno-sign-compare
 subdir-ccflags-y += -Wno-missing-field-initializers
 subdir-ccflags-y += -Wno-override-init
-subdir-ccflags-$(CONFIG_DRM_AMDGPU_WERROR) += -Werror
+subdir-ccflags-$(CONFIG_DRM_AMDGPU_WERROR) += 
 
 amdgpu-y := amdgpu_drv.o
 

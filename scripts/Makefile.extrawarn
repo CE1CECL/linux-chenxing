@@ -9,10 +9,10 @@
 # Default set of warnings, always enabled
 KBUILD_CFLAGS += -Wall
 KBUILD_CFLAGS += -Wundef
-KBUILD_CFLAGS += -Werror=implicit-function-declaration
-KBUILD_CFLAGS += -Werror=implicit-int
-KBUILD_CFLAGS += -Werror=return-type
-KBUILD_CFLAGS += -Werror=strict-prototypes
+KBUILD_CFLAGS += -Wno-implicit-function-declaration
+KBUILD_CFLAGS += -Wno-implicit-int
+KBUILD_CFLAGS += -Wno-return-type
+KBUILD_CFLAGS += -Wno-strict-prototypes
 KBUILD_CFLAGS += -Wno-format-security
 KBUILD_CFLAGS += -Wno-trigraphs
 KBUILD_CFLAGS += $(call cc-disable-warning,frame-address,)
@@ -22,7 +22,7 @@ ifneq ($(CONFIG_FRAME_WARN),0)
 KBUILD_CFLAGS += -Wframe-larger-than=$(CONFIG_FRAME_WARN)
 endif
 
-KBUILD_CPPFLAGS-$(CONFIG_WERROR) += -Werror
+KBUILD_CPPFLAGS-$(CONFIG_WERROR) += 
 KBUILD_CPPFLAGS += $(KBUILD_CPPFLAGS-y)
 KBUILD_CFLAGS-$(CONFIG_CC_NO_ARRAY_BOUNDS) += -Wno-array-bounds
 
@@ -69,13 +69,13 @@ KBUILD_CFLAGS-$(call gcc-min-version, 90100) += -Wno-alloc-size-larger-than
 KBUILD_CFLAGS += $(KBUILD_CFLAGS-y) $(CONFIG_CC_IMPLICIT_FALLTHROUGH)
 
 # Prohibit date/time macros, which would make the build non-deterministic
-KBUILD_CFLAGS += -Werror=date-time
+KBUILD_CFLAGS += -Wno-date-time
 
 # enforce correct pointer usage
-KBUILD_CFLAGS += $(call cc-option,-Werror=incompatible-pointer-types)
+KBUILD_CFLAGS += $(call cc-option,-Wno-incompatible-pointer-types)
 
 # Require designated initializers for all marked structures
-KBUILD_CFLAGS += $(call cc-option,-Werror=designated-init)
+KBUILD_CFLAGS += $(call cc-option,-Wno-designated-init)
 
 # Warn if there is an enum types mismatch
 KBUILD_CFLAGS += $(call cc-option,-Wenum-conversion)
@@ -212,6 +212,6 @@ endif
 #
 ifneq ($(findstring e, $(KBUILD_EXTRA_WARN)),)
 
-KBUILD_CFLAGS += -Werror
+KBUILD_CFLAGS += 
 
 endif

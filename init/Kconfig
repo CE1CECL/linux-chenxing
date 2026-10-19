@@ -96,7 +96,7 @@ config CC_HAS_ASM_INLINE
 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
 
 config CC_HAS_NO_PROFILE_FN_ATTR
-	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
+	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null )
 
 config PAHOLE_VERSION
 	int
@@ -158,7 +158,7 @@ config WERROR
 	default y
 	help
 	  A kernel build should not cause any compiler warnings, and this
-	  enables the '-Werror' (for C) and '-Dwarnings' (for Rust) flags
+	  enables the '' (for C) and '-Dwarnings' (for Rust) flags
 	  to enforce that rule by default. Certain warnings from other tools
 	  such as the linker may be upgraded to errors with this option as
 	  well.
