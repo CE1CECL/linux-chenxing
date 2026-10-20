@@ -25,8 +25,9 @@
 		#size-cells = <1>;
 		ranges;
 
-		fb-memory@2100000 {
-			reg = <0x2100000 0x400000>;
+		/* two 1920x1080 RGB565 buffers for mstar-gopfb (2 x 0x3f4800) */
+		fb_memory: fb-memory@2100000 {
+			reg = <0x2100000 0x900000>;
 		};
 
 		/* ve framebuffer */
@@ -38,15 +39,6 @@
 		tsukasa@3c00000 {
 			reg = <0x3c00000 0x400000>;
 		};
-	};
-
-	framebuffer@2100000 {
-		compatible = "simple-framebuffer";
-		reg = <0x2100000 0x400000>;
-		width = <1920>;
-		height = <1080>;
-		stride = <(1920*2)>;
-		format = "r5g6b5";
 	};
 };
 
@@ -85,20 +77,28 @@
 	};
 };
 
+/*
+ * Port 0, pad mode 1 (chiptop 0x1E12 = 1, as set by MBoot's tuner_init).
+ * The only device answering on this bus is the MxL5007T tuner at 0x60.
+ */
 &miic0 {
 	#address-cells = <1>;
 	#size-cells = <0>;
+	mstar,chiptop = <&chiptop>;
+	mstar,port = <0>;
+	mstar,pad-mode = <1>;
 	status = "okay";
+};
 
-	temp-sensor@4c {
-		compatible = "gmt,g781";
-		reg = <0x4c>;
-		#thermal-sensor-cells = <1>;
-	};
-
-	rtc@68 {
-		compatible = "dallas,ds1340";
-		reg = <0x68>;
+&riu {
+	/*
+	 * Front panel: FD650-style key/display controller bit-banged on PM SAR
+	 * pins 1 (DIO) and 2 (CLK). reg covers the SAR pin mode/GPIO registers
+	 * 0x1422-0x1425 (PM bank 0x1400 + 0x20 words).
+	 */
+	front-panel@2840 {
+		compatible = "mstar,msd7816-fd650-panel";
+		reg = <0x2840 0x10>;
 	};
 };
 
@@ -112,4 +112,20 @@
 
 &piu_uart0 {
 	status = "okay";
+};
+
+/*
+ * Linux framebuffer on GOP3, double buffered (mstar-gopfb). Buffer 0 is the
+ * one MBoot/logofix leave on screen at 0x2100000.
+ */
+&riu {
+	gop3-fb@203e00 {
+		compatible = "mstar,msd7816-gop3-fb";
+		reg = <0x203e00 0x200>,		/* GOP regs 0x1F00-0x1FFF */
+		      <0x202400 0x200>;		/* MIU0 regs 0x1200-0x12FF (arbitration) */
+		interrupts-extended = <&intc_irq 20 IRQ_TYPE_LEVEL_HIGH>;	/* GOP vsync */
+		memory-region = <&fb_memory>;
+		width = <1920>;
+		height = <1080>;
+	};
 };
